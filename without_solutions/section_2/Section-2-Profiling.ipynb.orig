@@ -1,0 +1,2497 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# IGNORE THIS CELL WHICH CUSTOMIZES LAYOUT AND STYLING OF THE NOTEBOOK !\n",
+    "%matplotlib inline\n",
+    "%config InlineBackend.figure_format = 'retina'\n",
+    "import warnings\n",
+    "\n",
+    "import matplotlib.pyplot as plt\n",
+    "\n",
+    "warnings.filterwarnings(\"ignore\", category=FutureWarning)\n",
+    "warnings.filterwarnings = lambda *a, **kw: None\n",
+    "from IPython.core.display import HTML\n",
+    "\n",
+    "HTML(open(\"../documents/custom.html\", \"r\").read())"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<br/>\n",
+    "<span style=\"background:#f0f0e0;padding:1em\">Copyright (c) 2020-2021 ETH Zurich, Scientific IT Services. This work is licensed under <a href=\"https://creativecommons.org/licenses/by-nc/4.0/\">CC BY-NC 4.0</a></span><br/>\n",
+    "<br/>"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<p style=\"font-size: 2.5em; font-weight: bold;\">Section 2: Profiling</p>\n",
+    "\n",
+    "Slow code usually has some \"hot spots\" where most of the runtime is spent and to improve your code you first have to figure out where such bottlenecks are located in your code.\n",
+    "\n",
+    "This process is called **profiling**.\n",
+    "\n",
+    "\n",
+    "<p style=\"text-align:center;\"><img src=\"images/profiling_flow.png\" width=\"70%\"/></p>"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Profiling example\n",
+    "\n",
+    "The following function `count_common` takes two lists `data_1` and `data_2` and counts how many elements both have in common. This is a simple and slightly unrealistic example, but good enough to show and explain a few fundamental principles of profiling and optimization."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def count_common(data_1, data_2):\n",
+    "    \"\"\"counts how many items data_1 and data_2 have in common\"\"\"\n",
+    "    matches = 0\n",
+    "    for value in data_1:\n",
+    "        if value in data_2:\n",
+    "            matches += 1\n",
+    "    return matches"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print(count_common([10, 20, 30], [20, 30, 40, 50]))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "This looked good! We got the result immediately. But how fast is `count_common` for larger inputs?\n",
+    "\n",
+    "To measure runtime we can use the `time` function from the `time` module from the Python standard library:\n",
+    "`time.time()` returns the time in second since the so called \"epoch\". On Windows and most Unix systems, the epoch is January 1, 1970, 00:00:00 (UTC), commonly referred to as Unix time.\n",
+    "\n",
+    "We can use the difference of two calls of `time.time()` to measure the runtime spent between the two calls:\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import time\n",
+    "\n",
+    "started = time.time()\n",
+    "print(\"I sleep now for 1.23 seconds\")\n",
+    "time.sleep(1.23)\n",
+    "print(\"Measured execution time is\", time.time() - started)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We use this method now to measure and report the speed of our initial code:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "raw",
+   "metadata": {},
+   "source": [
+    "import random\n",
+    "import time\n",
+    "\n",
+    "input_size = [8000, 16000, 32000]\n",
+    "needed_time = []\n",
+    "\n",
+    "def random_numbers(n):\n",
+    "    data = list(range(n))\n",
+    "    random.shuffle(data)\n",
+    "    return data\n",
+    "\n",
+    "for i, n in enumerate(input_size):\n",
+    "\n",
+    "    # create two lists of length n of random numbers in range 0..n:\n",
+    "    data_1 = random_numbers(n)\n",
+    "    data_2 = random_numbers(n) \n",
+    "    # time.time() returns the number of seconds (including figures\n",
+    "    # after the decimal point) since 1st of January 1970\n",
+    "    # (this date is also called the Unix epoch).\n",
+    "    start_time = time.time()\n",
+    "\n",
+    "    count_common(data_1, data_2)\n",
+    "\n",
+    "    # Calling time.time() and subtracting the value of\n",
+    "    # start_time we get the observed runtime for executing count_common.\n",
+    "    end_time = time.time()\n",
+    "    needed_time.append(end_time - start_time)\n",
+    "\n",
+<<<<<<< HEAD
+    "    if i > 0:\n",
+    "        factor = needed_time[i] / needed_time[0]\n",
+    "    else:\n",
+    "        factor = 0\n",
+    "\n",
+=======
+    "    factor = needed_time[i] / needed_time[0]\n",
+>>>>>>> section_2
+    "    print(\n",
+    "        \"n = {:5d}  time: {:5.2f} seconds, increased by {:3.1f} times\".format(\n",
+    "            n, needed_time[i], factor\n",
+    "        )\n",
+    "    )"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2020-10-16T08:19:06.564490Z",
+     "iopub.status.busy": "2020-10-16T08:19:06.564122Z",
+     "iopub.status.idle": "2020-10-16T08:19:06.572545Z",
+     "shell.execute_reply": "2020-10-16T08:19:06.570336Z",
+     "shell.execute_reply.started": "2020-10-16T08:19:06.564452Z"
+    }
+   },
+   "source": [
+    "We observe that every time we double the size $n$, the overall runtime approximately increases by a factor of four. This is the same as saying that the runtime is proportional to $n^2$."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2020-10-16T08:19:06.564490Z",
+     "iopub.status.busy": "2020-10-16T08:19:06.564122Z",
+     "iopub.status.idle": "2020-10-16T08:19:06.572545Z",
+     "shell.execute_reply": "2020-10-16T08:19:06.570336Z",
+     "shell.execute_reply.started": "2020-10-16T08:19:06.564452Z"
+    }
+   },
+   "source": [
+    "**Note**: Timing measurement values in this chapter will vary, they depends on the computer used and also will change from run to run. More about this later. So do not expect to get exactly the same output here and in following examples.\n",
+    "\n",
+    "A simple calculation estimates that\n",
+    "\n",
+    "- `n = 240000` would result in about 10 minutes processing time\n",
+    "- running the code with `n = 600000` would need about one hour to finish! \n",
+    "\n",
+    "This also means, that a program which works well on small data sets during development may have unacceptable runtime in real world situations. "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "\n",
+    "<div class=\"alert alert-block alert-info\">\n",
+    "    <p style=\"font-weight: bold; font-size:120%;\"><i class=\"fa fa-question-circle\"></i>&nbsp; Question to the audience</p>\n",
+    "\n",
+    "When you look at the function `count_common`: where do you think most run-time will be spent? Is there any command or are there code lines which are suspicious to be slow?\n",
+    "\n",
+    "\n",
+    "</div>\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Line profiler\n",
+    "\n",
+    "Instead of guessing which parts of our code are slow, tools called **profilers** provide means to understand how the overall runtime of a program is distributed over functions and/or individual lines of code. \n",
+    "\n",
+    "At the time of writing this notebook, the Python package `line_profiler` is our preferred profiling tool. We will discuss other tools later.\n",
+    "\n",
+    "To analyze code with `line_profiler`, we first have to install it using `pip install line_profiler`.\n",
+    "\n",
+    "Within a notebook, we can use the `line_profiler` line magic, namely `%lprun`. To do so, after installing `line_profiler` we have to activate it:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%load_ext line_profiler"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+<<<<<<< HEAD
+    "n = 50_000\n",
+    "data_1 = [random.randint(0, n) for _ in range(n)]\n",
+    "data_2 = [random.randint(0, n) for _ in range(n)]"
+=======
+    "n = 4000\n",
+    "data_1 = random_numbers(n)\n",
+    "data_2 = random_numbers(n)"
+>>>>>>> section_2
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "To run `%lprun`, the functions which are to be profiled are listed using `-f`, and the last argument is how the function execution is called. Here, we profile the `count_common` function using the given data. We will explain how to use `line_profiler` in the command line later in the script."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%lprun -f count_common count_common(data_1, data_2)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2020-10-16T08:27:43.713604Z",
+     "iopub.status.busy": "2020-10-16T08:27:43.712550Z",
+     "iopub.status.idle": "2020-10-16T08:27:43.733094Z",
+     "shell.execute_reply": "2020-10-16T08:27:43.730611Z",
+     "shell.execute_reply.started": "2020-10-16T08:27:43.713505Z"
+    }
+   },
+   "source": [
+    "The output shows us:\n",
+    "\n",
+    "* Line-wise time measurements for the function\n",
+    "* Column `Hits` counts how often the actual line was executed\n",
+    "* Column `Time` is the overall time spent executing this line in µs\n",
+    "* Column `Per Hit` is the average execution time of this line in µs\n",
+    "* Column `% Time` is the fraction of the overall time running the function\n",
+    "\n",
+    "So we see that most of the runtime (~95% on my computer) is spent in `if value in data_2`!"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2020-10-16T08:27:43.713604Z",
+     "iopub.status.busy": "2020-10-16T08:27:43.712550Z",
+     "iopub.status.idle": "2020-10-16T08:27:43.733094Z",
+     "shell.execute_reply": "2020-10-16T08:27:43.730611Z",
+     "shell.execute_reply.started": "2020-10-16T08:27:43.713505Z"
+    }
+   },
+   "source": [
+    "<div class=\"alert alert-block alert-info\">\n",
+    "    <p style=\"font-weight: bold; font-size:120%;\"><i class=\"fa fa-question-circle\"></i>&nbsp; Question to the audience</p>\n",
+    "\n",
+    "Was your guess right?\n",
+    "\n",
+    "</div>"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2020-10-16T08:27:43.713604Z",
+     "iopub.status.busy": "2020-10-16T08:27:43.712550Z",
+     "iopub.status.idle": "2020-10-16T08:27:43.733094Z",
+     "shell.execute_reply": "2020-10-16T08:27:43.730611Z",
+     "shell.execute_reply.started": "2020-10-16T08:27:43.713505Z"
+    }
+   },
+   "source": [
+    "<div class=\"alert alert-block alert-danger\">\n",
+    "    <p style=\"font-weight: bold;\"><i class=\"fa fa-lightbulb\"></i>&nbsp;Lesson learned</p>\n",
+    "\n",
+    "It is difficult to guess where the slow part of a program is, and guesses are most often wrong!\n",
+    "    \n",
+    "</div>"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2020-10-16T08:27:43.713604Z",
+     "iopub.status.busy": "2020-10-16T08:27:43.712550Z",
+     "iopub.status.idle": "2020-10-16T08:27:43.733094Z",
+     "shell.execute_reply": "2020-10-16T08:27:43.730611Z",
+     "shell.execute_reply.started": "2020-10-16T08:27:43.713505Z"
+    }
+   },
+   "source": [
+    "## Analysis\n",
+    "\n",
+    "\n",
+    "1. Checking if an item is an element of a list can be pretty slow. In the worst case, the Python interpreter has to iterate through the full list to do this check.  Therefore, on average, we can expect that the **runtime of this line is proportional to the length $n$ of the list**. \n",
+    "2. We further see that the specific line is executed $n$ times which supports our observation that the runtime is proportional to $n^2$.\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2020-10-16T08:27:43.713604Z",
+     "iopub.status.busy": "2020-10-16T08:27:43.712550Z",
+     "iopub.status.idle": "2020-10-16T08:27:43.733094Z",
+     "shell.execute_reply": "2020-10-16T08:27:43.730611Z",
+     "shell.execute_reply.started": "2020-10-16T08:27:43.713505Z"
+    }
+   },
+   "source": [
+    "## How to fix this?\n",
+    "\n",
+    "<table>\n",
+    "    <tr><td style=\"align: center\"><img src=\"https://media.geeksforgeeks.org/wp-content/uploads/20191023173512/Python-data-structure.jpg\" width=\"600px\"></td></tr>\n",
+    "    <tr><td><center><sub>Source: <a href=\"www.geeksforgeeks.org\">www.geeksforgeeks.org</a></sub></center></td></tr>\n",
+    "</table>"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2020-10-16T08:27:43.713604Z",
+     "iopub.status.busy": "2020-10-16T08:27:43.712550Z",
+     "iopub.status.idle": "2020-10-16T08:27:43.733094Z",
+     "shell.execute_reply": "2020-10-16T08:27:43.730611Z",
+     "shell.execute_reply.started": "2020-10-16T08:27:43.713505Z"
+    }
+   },
+   "source": [
+    "The appropriate and optimized data type for checking membership is `set` and not `list`. \n",
+    "\n",
+    "<div class=\"alert alert-info alert-info\">\n",
+    "    <p style=\"font-weight: bold;\"><i class=\"fa fa-info-circle\"></i>&nbsp;Note</p>\n",
+    "\n",
+    "The Python type `set` implements an unordered collection of elements similar to mathematical sets.\n",
+    "    \n",
+    "Python sets support operations like intersection, union, differences or checks, e.g., if a set is a subset of another set.\n",
+    "    \n",
+    "The underlying implementation is very fast!.\n",
+    "    \n",
+    "</div>\n",
+    "\n",
+    "Sets (and dictionaries) in Python are implemented based on so-called [hash tables](https://www.tutorialspoint.com/data_structures_algorithms/hash_data_structure.htm)  which come from computer science. Hash tables guarantee that the membership lookup `x in y` has **constant (maximal) runtime independent of the size of `y`**!\n",
+    "\n",
+    "\n",
+    "\n",
+    "\n",
+    "\n",
+    "\n",
+    "\n",
+    "As our program is independent of the order of the values in data we do no harm when we convert the data type to set:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def count_common_2(data_1, data_2):\n",
+    "    \n",
+    "    matches = 0\n",
+    "    \n",
+    "    # This is the modification. But this only works\n",
+    "    # in case data_2 has no duplicate elements,\n",
+    "    # which is valid for out test data:\n",
+    "    data_2 = set(data_2) \n",
+    "    \n",
+    "    for value in data_1:\n",
+    "        if value in data_2:\n",
+    "            matches += 1\n",
+    "    return matches"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+<<<<<<< HEAD
+    "n = 50_000\n",
+    "data_1 = [random.randint(0, n) for _ in range(n)]\n",
+    "data_2 = [random.randint(0, n) for _ in range(n)]"
+=======
+    "n = 4000\n",
+    "data_1 = random_numbers(n)\n",
+    "data_2 = random_numbers(n)"
+>>>>>>> section_2
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "%lprun -f count_common_2 count_common_2(data_1, data_2)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "1. Overall runtime (`Total time` in the output) reduced significantly by choosing the right data structure! \n",
+    "\n",
+    "2. You also can notice that data conversion in Line 3 only adds insignificant extra runtime. \n",
+    "\n",
+    "3. Further we see no \"hot spots\" of slow code anymore, the `Per Hit` values in Line 4 to 6 are similar."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Final version\n",
+    "\n",
+    "We optimize our code further: To count the number of common elements we convert `data_1` and `data_2` to sets and compute the size of the intersection of both sets."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def count_common_3(data_1, data_2):\n",
+    "    data_1 = set(data_1)\n",
+    "    data_2 = set(data_2)\n",
+    "    # compute set intersection which is the set of common elements:\n",
+    "    common = data_1 & data_2\n",
+    "    return len(common)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import random\n",
+    "\n",
+<<<<<<< HEAD
+    "n = 50_000\n",
+    "data_1 = [random.randint(0, n) for _ in range(n)]\n",
+    "data_2 = [random.randint(0, n) for _ in range(n)]"
+=======
+    "n = 4000\n",
+    "data_1 = random_numbers(n)\n",
+    "data_2 = random_numbers(n)"
+>>>>>>> section_2
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%lprun -f count_common_3 count_common_3(data_1, data_2)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The result is impressive. We further reduced runtime by a factor of about 100!\n",
+    "\n",
+    "The reason for this is that **we replaced a slow Python `for` loop by calling the set intersection of Python which is implemented in `C`.**\n",
+    "\n",
+    "In the beginning we estimated that the original implementation would need about 1h to run for `n = 600000`.\n",
+    "\n",
+    "Let's profile our improved version:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import random\n",
+    "\n",
+<<<<<<< HEAD
+    "n = 600_000\n",
+    "data_1 = [random.randint(0, n) for _ in range(n)]\n",
+    "data_2 = [random.randint(0, n) for _ in range(n)]"
+=======
+    "n = 60000\n",
+    "data_1 = random_numbers(n)\n",
+    "data_2 = random_numbers(n)"
+>>>>>>> section_2
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%lprun -f count_common_3 count_common_3(data_1, data_2)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2020-10-16T09:10:47.538167Z",
+     "iopub.status.busy": "2020-10-16T09:10:47.537768Z",
+     "iopub.status.idle": "2020-10-16T09:10:47.544433Z",
+     "shell.execute_reply": "2020-10-16T09:10:47.542902Z",
+     "shell.execute_reply.started": "2020-10-16T09:10:47.538127Z"
+    }
+   },
+   "source": [
+    "After we have performed code profiling and optimization, we reduced overall runtime for a large `n` from an hour to less than 0.2 sec.\n",
+    "\n",
+    "\n",
+    "<div class=\"alert alert-block alert-danger\">\n",
+    "    <p style=\"font-weight: bold;\"><i class=\"fa fa-lightbulb\"></i>&nbsp;Lesson learned</p>\n",
+    "\n",
+    "Optimizing  Python code might require good knowledge of Python data structures.    \n",
+    "</div>\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Exercise block 1 [10min]\n",
+    "\n",
+    "Use the `line_profiler` line magic `%lprun` to profile the following code. Try to understand where and why most time is spent. Can you improve run time?"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import time\n",
+    "\n",
+    "\n",
+    "def fibionacci_numbers(n):\n",
+    "    \"\"\"computes first n fibionacci numbers.\n",
+    "\n",
+    "    the fibionacci sequence starts with 0, 1\n",
+    "    and following numbers are the sum of its\n",
+    "    two preceding numbers:\n",
+    "\n",
+    "    0, 1, 1, 2, 3, 5, 8, 13, ...\n",
+    "    \"\"\"\n",
+    "    result = [0, 1]\n",
+    "    while len(result) < n:\n",
+    "        result.append(result[-1] + result[-2])\n",
+    "    return result[:n]\n",
+    "\n",
+    "\n",
+    "def sumup_fibionacci_numbers(n):\n",
+    "    sum_ = 0\n",
+    "    for i in range(n):\n",
+    "        numbers = fibionacci_numbers(i + 1)\n",
+    "        sum_ += numbers[i]\n",
+    "    return sum_\n",
+    "\n",
+    "\n",
+    "started = time.time()\n",
+    "sumup_fibionacci_numbers(2000)\n",
+    "needed = time.time() - started\n",
+    "print(f\"needed {needed:.1f} seconds\")"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "source": [
+    "## Solution"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "outputs": [],
+   "source": [
+    "%load_ext line_profiler"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "outputs": [],
+   "source": [
+    "%lprun -f sumup_fibionacci_numbers sumup_fibionacci_numbers(2000)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "source": [
+    "As you can see we spend 99% of the time in calling `fibionacci_numbers` over and over again.\n",
+    "\n",
+    "If you compare the reported runtime and compare to the timing from the original exercise you will also see the extra time caused by the profiler!\n",
+    "\n",
+    "**Optimization**: We can compute the first $n$ fibionacci numbers once in the beginning and then add them up:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "outputs": [],
+   "source": [
+    "def fibionacci_numbers(n):\n",
+    "    \"\"\"computes first n fibionacci numbers.\n",
+    "\n",
+    "    the fibionacci sequence starts with 0, 1\n",
+    "    and following numbers are the sum of its\n",
+    "    two preceding numbers:\n",
+    "\n",
+    "    0, 1, 1, 2, 3, 5, 8, 13, ...\n",
+    "    \"\"\"\n",
+    "    result = [0, 1]\n",
+    "    while len(result) < n:\n",
+    "        result.append(result[-1] + result[-2])\n",
+    "    return result[:n]\n",
+    "\n",
+    "\n",
+    "def sumup_fibionacci_numbers_optimized(n):\n",
+    "    sum_ = 0\n",
+    "    numbers = fibionacci_numbers(n)\n",
+    "    for i in range(n):\n",
+    "        sum_ += numbers[i]\n",
+    "    return sum_\n",
+    "\n",
+    "\n",
+    "def sumup_fibionacci_numbers_optimized_further(n):\n",
+    "    numbers = fibionacci_numbers(n)\n",
+    "    return sum(numbers)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "outputs": [],
+   "source": [
+    "%lprun -f sumup_fibionacci_numbers_optimized sumup_fibionacci_numbers_optimized(2000)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "outputs": [],
+   "source": [
+    "%lprun -f sumup_fibionacci_numbers_optimized_further sumup_fibionacci_numbers_optimized_further(2000)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# About time measurements on computers\n",
+    "\n",
+    "Measuring code execution time **accurately** can be trickier than you might think. \n",
+    "If you run the previous examples multiple times you will see that then numbers change from run to run.\n",
+    "\n",
+    "The reason for this is that modern computers run many programs concurrently, this might be a system-upgrade in the background, downloading new emails or other work done permanently by your operating system. Even moving the mouse, scrolling a window or typing cause some (but little) load on your system!\n",
+    "\n",
+    "<p style=\"text-align:center;\"><img src=\"images/time_measuerement.png\" width=\"50%\"/></p>\n",
+    "\n",
+    "\n",
+    "To improve accuracy the common strategy is to measure multiple times and take the **minimum** or the **average** of the measured times. \n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## The minimum or the average?\n",
+    "\n",
+    "It depends on the code whether you should choose the minimum or the average of measured runtimes.\n",
+    "\n",
+    "- If your program includes randomization, e.g., a randomized initial guess in an optimization algorithm to find a local minimum, or when training a deep neural network, average values will give you an idea of expected run times\n",
+    "- If your program is deterministic, taking the minimum runtime would give you better estimates of your \"pure runtime\" (the blue fields in the image above) than using the average.\n",
+    "\n",
+    "But the situation can be even more tricky, e.g., if your program downloads data from the internet the first run might me much slower than subsequent runs since the internet might store data on its way from the server to your machine in local network caches. \n",
+    "In this case you have to decide what you want to measure. Even taking the maximum run time could make sense here, or list the range of runtimes and the median value for reporting."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Other recommendations\n",
+    "\n",
+    "1. As time measurements are inaccurate especially small values should not be taken too seriously. In Python applications, we usually do not try to squeeze out a few microseconds but intend to reduce runtime by a significant factor, e.g., to gain 10 times speedup when starting the optimization and to reduce 20% of runtime when fine-tuning.\n",
+    "\n",
+    "2. When you optimize your code, do not compare measurements taken on different computers. Operating systems, CPU models and other factors affect time measurements significantly. (This does not mean that you should not report the final speed of your code on different computers)."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Profiling strategies\n",
+    "\n",
+    "In real world programs, the location of the slow parts of a program can vary for different data set / problem sizes. Let's assume your program has the following structure:\n",
+    "\n",
+    "```python\n",
+    "intermediate_result = process_step_1(data)\n",
+    "final_result = process_step_2(intermediate_result)\n",
+    "```"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Further let's assume that \n",
+    "\n",
+    "- $n$ is the size of your data set `data`\n",
+    "- the run time of `process_step_1` can be described as $40 \\times n^2$ microseconds \n",
+    "- and the run time of `process_step_2` as $0.00005 \\times n^4$ microseconds. \n",
+    "\n",
+    "(These polynomial laws for the runtimes are not made up, more about this the following chapter.)\n",
+    "\n",
+    "\n",
+    "This is a plot showing how the total run time and the partial run times develop depending on $n$:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import matplotlib.pyplot as plt\n",
+    "import numpy as np\n",
+    "\n",
+    "n = np.arange(0, 1500, 50)\n",
+    "t1 = 40 * n ** 2 / 1_000_000\n",
+    "t2 = 0.00005 * n ** 4 / 1_000_000\n",
+    "plt.plot(n, t1 + t2, label=\"total run time\")\n",
+    "plt.plot(n, t1, \"g:\", label=\"process_step_1\")\n",
+    "plt.plot(n, t2, \"k:\", label=\"process_step_2\")\n",
+    "plt.xlabel(\"n\")\n",
+    "plt.ylabel(\"Run time [us]\")\n",
+    "plt.xlim(0, None)\n",
+    "plt.ylim(0, None)\n",
+    "plt.legend();"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "So when you profile your code for a data set size of 500, the profiler will show you that `process_step_1` is  the bottleneck. Optimizing `process_step_1` will give you better results for this problem size, but when you run your program with larger data sets in the future you will realize that you need further optimizations.\n",
+    "\n",
+    "So profiling also depends on typical use cases for your code and also on assumptions about future scenarios.\n",
+    "\n",
+    "<div class=\"alert alert-info alert-info\">\n",
+    "    \n",
+    "<p style=\"font-weight: bold;\">\n",
+    "    <i class=\"fa fa-info-circle\"></i>&nbsp;Advice\n",
+    "    <p>\n",
+    "Profile your code for different realistic problem sizes $n$ so that you can be sure where the bottlenecks are.<br/>\n",
+    "    </p>\n",
+    "</p>\n",
+    "</div>"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<center><a href=\"https://imgflip.com/i/4iri4p\"><img src=\"https://i.imgflip.com/4iri4p.jpg\" title=\"made at imgflip.com\"/></a><div><a href=\"https://imgflip.com/memegenerator\">from Imgflip Meme Generator</a></div></center>"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2020-10-14T13:56:24.928164Z",
+     "iopub.status.busy": "2020-10-14T13:56:24.927626Z",
+     "iopub.status.idle": "2020-10-14T13:56:24.932381Z",
+     "shell.execute_reply": "2020-10-14T13:56:24.931360Z",
+     "shell.execute_reply.started": "2020-10-14T13:56:24.928086Z"
+    }
+   },
+   "source": [
+    "# How to measure execution times"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2020-10-14T13:56:24.928164Z",
+     "iopub.status.busy": "2020-10-14T13:56:24.927626Z",
+     "iopub.status.idle": "2020-10-14T13:56:24.932381Z",
+     "shell.execute_reply": "2020-10-14T13:56:24.931360Z",
+     "shell.execute_reply.started": "2020-10-14T13:56:24.928086Z"
+    }
+   },
+   "source": [
+    "## The `time` command line\n",
+    "\n",
+    "The  command line command `time` determines how long a given command takes to run. Please note that his command is available in Linux and macOS but not in Windows.\n",
+    "\n",
+    "Let's see an example. Since `time` is a command line program we have to write our Python file into a separate file.\n",
+    "\n",
+    "The so called **cell magic** `%%file` will write the content of the cell into a file named `myscript.py`:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%%file myscript.py\n",
+    "\n",
+    "import random\n",
+    "import time\n",
+    "\n",
+    "\n",
+    "def count_common(data_1, data_2):\n",
+    "    \"\"\"counts how many items data_1 and data_2 have in common\"\"\"\n",
+    "    matches = 0\n",
+    "    for value in data_1:\n",
+    "        if value in data_2:\n",
+    "            matches += 1\n",
+    "    return matches\n",
+    "\n",
+    "\n",
+    "n = 8000\n",
+    "\n",
+    "data_1 = random_numbers(n)\n",
+    "data_2 = random_numbers(n)\n",
+    "\n",
+    "start_time = time.time()\n",
+    "\n",
+    "count_common(data_1, data_2)\n",
+    "\n",
+    "end_time = time.time()\n",
+    "needed_time = end_time - start_time\n",
+    "print(\"n = {:5d}  time: {:5.2f} seconds\".format(n, needed_time))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Let's call the `time` command. To execute a terminal command in a Jupyter Notebook cell, we need to prepend an exclamation mark `!` to the beginning of the command:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "!time python myscript.py"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2020-10-19T12:15:08.312100Z",
+     "iopub.status.busy": "2020-10-19T12:15:08.311776Z",
+     "iopub.status.idle": "2020-10-19T12:15:08.318857Z",
+     "shell.execute_reply": "2020-10-19T12:15:08.317634Z",
+     "shell.execute_reply.started": "2020-10-19T12:15:08.312065Z"
+    }
+   },
+   "source": [
+    "* `real` is the time from start to finish of the call. It is the time the user experiences from the moment you hit the Enter key until the moment the execution of the script is completed.\n",
+    "* `user` - amount of CPU time spent in user mode.\n",
+    "* `sys` - amount of CPU time spent in kernel mode in which protected instructions can be performed, e.g., I/O instructions."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We cannot explain the differences of the values here, but unless you know what you are doing, use the `real` entry for time measurements."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Python modules\n",
+    "\n",
+    "### `time` module\n",
+    "\n",
+    "We introduced `time.time()` already.\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### `timeit`\n",
+    "\n",
+    "Unlike the `time` module which saves the time before and after the execution of the code and subtract them, `timeit.timeit()` times a number of executions (1,000,000 by default) of the main statement and outputs the statistically measurement of code execution time. `timeit` can be used from the command line or imported as a Python module.\n",
+    "\n",
+    "As it runs code so many time it is more suited to measure small execution times, e.g. for single Python commands or expressions.\n",
+    "\n",
+    "The module function `timeit.timeit(stmt, setup, timer, number)` takes in four arguments:\n",
+    "* `stmt` is the statement to be measured the time (default value 'pass')\n",
+    "* `setup` is the code that needs to be run before `stmt`\n",
+    "* `timer` is a `timeit.Timer` object\n",
+    "* `number` is the number of executions to run the `stmt`\n",
+    "\n",
+    "The return value is the total time of the `number` executions.\n",
+    "\n",
+    "Let's use this to compare membership lookup for lists and sets:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import timeit\n",
+    "\n",
+    "setup = \"\"\"\n",
+    "import random\n",
+    "n = 5000\n",
+    "data_as_list = [random.randint(0, n) for _ in range(n)]\n",
+    "data_as_set = set(data_as_list)\n",
+    "\"\"\"\n",
+    "\n",
+    "list_lookup = \"\"\"\n",
+    "2500 in data_as_list\n",
+    "\"\"\"\n",
+    "\n",
+    "set_lookup = \"\"\"\n",
+    "2500 in data_as_set\n",
+    "\"\"\"\n",
+    "\n",
+    "print(timeit.timeit(stmt=list_lookup, setup=setup, number=10_000))\n",
+    "print(timeit.timeit(stmt=set_lookup, setup=setup, number=10_000))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "You should not be surprised any more to see here that sets are much faster than lists for checking membership!"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## IPython magics\n",
+    "\n",
+    "IPython magic commands or magic functions are the enhancements specific to and provided by IPython kernel. The two types of magic commands are:\n",
+    "* Line magics which start with `%` character and are similarly to command line calls\n",
+    "* Cell magics which start with `%%` character and can operate on multiple lines below their call.\n",
+    "\n",
+    "### The `%time` magic\n",
+    "\n",
+    "The cell magic `%%time` and the line magic `%time` display time required by IPython environment to execute a Python code snippet.\n",
+    "\n",
+    "`%time` measure the run time of a single line of code, `%%time` the run time of a full code cell:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import random\n",
+    "\n",
+    "n = 5000\n",
+    "data_1 = random_numbers(n)\n",
+    "data_2 = random_numbers(n)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%time count_common(data_1, data_2)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%%time\n",
+    "count_common(data_1, data_2)\n",
+    "count_common(data_1, data_2)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "From the output, you can see `CPU times` which are the time the code spends in the `user` and kernel (`sys`) mode (we don't explain the details and differences here). `Wall time` is the amount of time that passes from the start of the execution to its end.\n",
+    "\n",
+    "## The `%timeit` magic\n",
+    "\n",
+    "`%timeit` uses `timeit.repeat(stmt, setup, timer, number, repeat)` which executes code snippet for `number` times (loops) and `repeat` runs. \n",
+    "\n",
+    "The output reports mean and standard deviation of time per loop. \n",
+    "\n",
+    "Users can specify `number` with the option `-n` and `repeat` with `-r`.\n",
+    "\n",
+    "Running `%timeint -n N -r R FUNCTIONCALL` works as follows:\n",
+    "\n",
+    "```\n",
+    "timings = []\n",
+    "for _ in range(R):\n",
+    "\n",
+    "    start = time.time()\n",
+    "    for _ in range(N):\n",
+    "        FUNCTIONCALL\n",
+    "    needed = (time.time() - start) / N\n",
+    "\n",
+    "    timings.append(needed) \n",
+    "    \n",
+    "m = mean(timings)\n",
+    "s = stddev(timings)\n",
+    "report(....)\n",
+    "```\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The inner loop to `N` is needed to get accurate measurements, the outer loop to `R` is needed for the final statistics.\n",
+    "\n",
+    "Without specifying `-n` and `-r` the numbers are estimated based on the execution time for one or more function calls. This is done in a way so that overall timing does not run very long, but at the same time we can get reliable measurements and statistics.\n",
+    "\n",
+    "The numbers are then also reported:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%%timeit\n",
+    "count_common(data_1, data_2)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "So in this case `N` was set to 10 and `R` to 7.\n",
+    "\n",
+    "Same as a line magic:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%timeit count_common(data_1, data_2)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "And now with user specified parameters:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%timeit -n 10 -r 2 count_common(data_1, data_2)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Time profiling\n",
+    "\n",
+    "## Line by line profiling with `line_profiler` and  `%lprun`"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "`%lprun` was introduce in the first section. Beyond the use within Jupyter notebooks you can also call the line profiler directly from the command line.\n",
+    "\n",
+    "To make this work you have to decorate the functions you want to profile with the `@profile` decorator, we also write the content of the code cell to a file so that we can use `line_profiler` from the command line:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%%file line_profiler_demo.py\n",
+    "\n",
+    "import random\n",
+    "\n",
+    "\n",
+    "@profile\n",
+    "def count_common(data_1, data_2):\n",
+    "    \"\"\"counts how many items data_1 and data_2 have in common\"\"\"\n",
+    "    matches = 0\n",
+    "    for value in data_1:\n",
+    "        if value in data_2:\n",
+    "            matches += 1\n",
+    "    return matches\n",
+    "\n",
+    "\n",
+    "@profile\n",
+    "def generate_data(n=5000):\n",
+    "    data_1 = random_numbers(n)\n",
+    "    data_2 = random_numbers(n)\n",
+    "    return data_1, data_2\n",
+    "\n",
+    "\n",
+    "@profile\n",
+    "def multiple_calls():\n",
+    "    for i in range(5):\n",
+    "        data_1, data_2 = generate_data()\n",
+    "        count_common(data_1, data_2)\n",
+    "\n",
+    "\n",
+    "multiple_calls()\n",
+    "multiple_calls()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "To profile this code in the commandline you have to run as below. The options `-v` shows the results on the screen output and the option`-l` use the line-by-line profiler instead of cProfile. "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "!kernprof -vl line_profiler_demo.py"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2020-11-16T11:09:44.973846Z",
+     "iopub.status.busy": "2020-11-16T11:09:44.971606Z",
+     "iopub.status.idle": "2020-11-16T11:09:44.988786Z",
+     "shell.execute_reply": "2020-11-16T11:09:44.983761Z",
+     "shell.execute_reply.started": "2020-11-16T11:09:44.973713Z"
+    }
+   },
+   "source": [
+    "Comments:\n",
+    "\n",
+    "1. `line_profiler` works by calling `time.time()` before and after each line is executed and accumulating these measurements\n",
+    "2. This can introduce a **significant run time overhead**. Thus, your program will slow down.\n",
+    "3. Another consequence is that reported small numbers are not very reliable."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "`@profile` does not require extra imports, as this is handled when you call `kernprof`. Thus, your code will not run when you run it as a regular Python script:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "!python line_profiler_demo.py"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Trick**\n",
+    "\n",
+    "If you run the code above using the Python interpreter, you will get an error message that `profile` is not defined and program execution will halt. Adding and removing `@profile` during development can be cumbersome, but there is a trick, such that code runs in both situations:\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%%file line_profiler_trick.py\n",
+    "\n",
+    "# this makes code run with Python and line-profiler:\n",
+    "try:\n",
+    "    profile\n",
+    "except NameError:\n",
+    "    profile = lambda f: f\n",
+    "\n",
+    "\n",
+    "# now we demonstrate this\n",
+    "@profile\n",
+    "def test():\n",
+    "    print(\"hi\")\n",
+    "\n",
+    "\n",
+    "test()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "!python line_profiler_trick.py"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "!kernprof -vl line_profiler_trick.py"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## `cProfile`\n",
+    "\n",
+    "Python standard library provides two different implementations of the same profiling interface:\n",
+    "\n",
+    "1. `cProfile` is a C extension with reasonable overhead and, therefore, suitable for profiling long-running programs.\n",
+    "\n",
+    "2. `profile` is a pure Python module with the same interface as `cProfile` but has significant higher overhead in profiling. It is not recommended to be used unless you want to subclass from `profile.Profile` to modify / extend the profiler.\n",
+    "\n",
+    "Both profilers  measure times per function call and **not per executed line**.\n",
+    "\n",
+    "We mention `cProfile` for the sake of completeness, the output of `cProfile` is regrettably difficult to read, this is why we introduce `pyinstrument` next."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## `pyinstrument`\n",
+    "\n",
+    "As a statistical profiler, `pyinstrument` is faster than `line_profiler` and `cProfile` because, instead of tracing, it is sampling the process every 1ms and recording the call stack at that point and this results in lower overhead.  The output shows measured times not per line but per function call.\n",
+    "\n",
+    "We construct a more complex example with multiple nested function calls to demonstrate the use of `pyinstrument`:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%%file multiple_calls.py\n",
+    "\n",
+    "import random\n",
+    "\n",
+    "\n",
+    "def count_common(data_1, data_2):\n",
+    "    \"\"\"counts how many items data_1 and data_2 have in common\"\"\"\n",
+    "    matches = 0\n",
+    "    for value in data_1:\n",
+    "        if value in data_2:\n",
+    "            matches += 1\n",
+    "    return matches\n",
+    "\n",
+    "\n",
+    "def generate_data(n=5000):\n",
+    "    data_1 = random_numbers(n)\n",
+    "    data_2 = random_numbers(n)\n",
+    "    return data_1, data_2\n",
+    "\n",
+    "\n",
+    "def multiple_calls():\n",
+    "    for i in range(5):\n",
+    "        data_1, data_2 = generate_data()\n",
+    "        count_common(data_1, data_2)\n",
+    "\n",
+    "\n",
+    "def main():\n",
+    "    multiple_calls()\n",
+    "    multiple_calls()\n",
+    "\n",
+    "\n",
+    "main()"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "And now we run this code including profiling and printing a final report:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "!pyinstrument multiple_calls.py"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "!pyinstrument --load-prev 2022-09-21T09-26-47 --html"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "What we see here is a top down analysis of your program from the entry point function `main` down to the lowest level:\n",
+    "\n",
+    "1. The overall runtime is reported at the top level. The following two levels are `jupyter` internals, our function `main` appears on the fourth level.\n",
+    "2. Most of the time is spent in `count_common` and only little time in `generate_data`. Both time values sum up to the run time of `main`.\n",
+    "3. In `generate_data` the run time is split (almost equally) to the run times of both list comprehensions\n",
+    "4. For each list comprehension the random number generation takes about 75% of the time, the rest is execution of the list comprehension itself.\n",
+    "\n",
+    "Some facts about `pyinstrument`:\n",
+    "\n",
+    "1. `pyinstrument` can be used as a first step to profile complex programs to get an idea whereabout the slow spots are. Then, you can refine your analysis using the `line_profiler`.\n",
+    "2. `pyinstrument` also has an HTML mode which opens a browser to show the report which is interactive and easy to be explored.\n",
+    "\n",
+    "The full documentation can be found at https://github.com/joerick/pyinstrument"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Memory profiling\n",
+    "\n",
+    "Excessive memory consumption can cause so called *swapping* where your computer offloads unused memory temporarily to disk. This process slows down execution significantly. It can also crash your program. Profiling memory consumption will give you the needed information to figure out why your program uses excessive memory."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## `%mprun`\n",
+    "In a similar fashion to `%lprun`, `%mprun` performs line-by-line profiling. The module can be installed with the command:\n",
+    "\n",
+    "```\n",
+    "$ pip install memory_profiler\n",
+    "```\n",
+    "\n",
+    "Then, load the module as an extension:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%load_ext memory_profiler"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The code we used before is not suitable for memory profiling, so we introduce another example:\n",
+    "\n",
+    "\n",
+    "Our example uses the so called **outer product** $\\otimes$ from linear algebra, which is a kind of multiplication of two vectors which returns a matrix. We use this to make Python use lots of memory: \n",
+    "\n",
+    "For a vector $a$ of dimension $n$ and a vector $b$ of dimension $m$ the operation $a \\otimes b$ results in a matrix of size $n \\times m$. \n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<div class=\"alert alert-info alert-info\">\n",
+    "    <p style=\"font-weight: bold;\"><i class=\"fa fa-info-circle\"></i>&nbsp;Definition for the curious</p>\n",
+    "    \n",
+    "The outer product $\\otimes$ is defined as\n",
+    "    \n",
+    "$$\\otimes: \\mathbb{R}^n \\times \\mathbb{R}^m \\rightarrow \\mathbb{R}^{n \\times m}$$\n",
+    "$$(a \\otimes b)_{i,j} = a_i b_j$$ \n",
+    "</div>"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "`numpy` offers a function `outer` to implement this."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%%file outer_product.py\n",
+    "\n",
+    "import numpy as np\n",
+    "\n",
+    "def outer_product(n):\n",
+    "    a = np.random.random(size=(n,))\n",
+    "\n",
+    "    AA = np.outer(a, a)\n",
+    "    print(\"shape of AA:\", AA.shape)\n",
+    "\n",
+    "    b = np.outer(a, a) @ a\n",
+    "    print(\"shape of b:\", b.shape, np.sum(AA))\n",
+    "    "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Calling the memory profiler is similar to `%lprun`: we specify the functions we want to profile with `-f` and the last argument on that line triggers code execution:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# profiling starts here\n",
+    "from outer_product import outer_product\n",
+    "\n",
+    "%mprun -f outer_product outer_product(10_000)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The output reports for each line the accumulated `Mem usage` over the lines, `Increment` the memory usage of that line, and `Line Contents` from the code."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "1. A single Python `float` consumes 8 bytes (and not 4 bytes as in C). Thus `AA` allocates `10_000 * 10_000 * 8` bytes which is `10_000 * 10_000 * 8 / (1024 * 1024) = 762.9` MiB. \n",
+    "\n",
+    "   This is approximately the number reported by `memory_profiler` as `Increment` for line 8.\n",
+    "   \n",
+    "2. In line 11, we first create a matrix of 763MiB for `np.outer(a, a)`, the following matrix multiplication by `a` reduces the memory down to the `10_000 * 8 bytes` for `b`. The memore usage of ~78KiB for `b` is not reported by the profiler because it prints rounded MiB values! \n",
+    "\n",
+    "**We do not see the temporary memory usage to compute the outer product in line 11!!!**"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### How `memory_profiler` works and consequences\n",
+    "\n",
+    "The reason for the observed behavior is the way `memory_profiler` works: the profiler asks the operating system before and after executing each line about the used memory.\n",
+    "\n",
+    "This has a few consequences:\n",
+    "\n",
+    "1. The runtime overhead is even higher than the overhead of `line_profiler` (the OS needs a while to determine and report memory usage).\n",
+    "2. The numbers are not always reliable (the OS sometimes has a delay in reporting memory usage). This affects most often negative increments when memory is released again.\n",
+    "3. As we have seen, temporary memory usage within a single line is not detected. \n",
+    "\n",
+    "Point 3 also applies if a line calls a function which allocates and releases memory:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%%file outer_product_2.py\n",
+    "\n",
+    "import numpy as np\n",
+    "\n",
+    "def run(n):\n",
+    "    a = np.random.random(size=(n,))\n",
+    "    b = compute_b(a)\n",
+    "    print(\"shape of b:\", b.shape)\n",
+    "\n",
+    "\n",
+    "def compute_b(a):\n",
+    "    AA = np.outer(a, a)\n",
+    "    b = AA @ a\n",
+    "    return b"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from outer_product_2 import compute_b, run\n",
+    "\n",
+    "%mprun -f compute_b -f run run(10_000)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "- In the function `compute_b`, similarly to the previous example, the memory usage of Line 12 is reported correctly and that of Line 13 is not reported. \n",
+    "- In the function `run`, the memory usage of the function `compute_b` in Line 7 is also not reported correctly.\n",
+    "\n",
+    "\n",
+    "**This affects the way one has to work with `memory_profiler`**:\n",
+    "\n",
+    "- If you use the `line_profiler` you can \"drill down\" from a function to lower level functions to find a hot spot\n",
+    "  because consumed run-time can not \"hide\" behind a function call.\n",
+    "- but for the memory profiler this does not work, instead you have to proceed \"bottom-up\" which can be much more work!\n",
+    "\n",
+    "Comment: `memory_profiler` can also be used from the command line, see the documentation at https://github.com/pythonprofilers/memory_profiler#usage"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## `%memit`\n",
+    "\n",
+    "There is also a \"single line version\" of the memory profiler `%memit` which is also **able to detect temporary memory usage** within a particular line of code:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+<<<<<<< HEAD
+    "import numpy as np\n",
+    "a = np.random.random(size=(10_000,))\n",
+=======
+    "a = np.random(size=(10_000,))\n",
+>>>>>>> section_2
+    "%memit np.outer(a, a) @ a"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from outer_product_2 import run\n",
+    "\n",
+    "%memit run(10_000)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## `scalene`"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "`scalene` is a high-performance CPU, GPU and memory profiler for Python.\n",
+    "\n",
+    "The tool can be used with the following options:\n",
+    "\n",
+    "1. From the command line. The output is shown in a web interface: `scalene your_prog.py`                          \n",
+    "2. Programatically in your code:\n",
+    "    - by calling the profiler before and after the code you want to profile.\n",
+    "    - with the `@profile` decorator to profile specific functions.\n",
+    "    \n",
+    "The web interface looks as follows for the training of a simple neural network:\n",
+    "<p style=\"text-align:center;\"><img src=\"images/scalene.png\" width=\"70%\"/></p>\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Exercise block 2 [20min]\n",
+    "\n",
+    "1. **Sum up Fibionacci numbers**\n",
+    "    * Use the `time`, `line_profiler` and `pyinstrument` from the command line to profile the code from Exercise block 1 as well as your solution. You can also use the code from the solutions folder. \n",
+    "    \n",
+    "    "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "outputs": [],
+   "source": [
+    "%%file fib_sum.py\n",
+    "\n",
+    "import sys\n",
+    "\n",
+    "try:\n",
+    "    profile\n",
+    "except NameError:\n",
+    "    profile = lambda f: f\n",
+    "\n",
+    "\n",
+    "@profile\n",
+    "def fibionacci_numbers(n):\n",
+    "    \"\"\"computes first n fibionacci numbers.\n",
+    "\n",
+    "    the fibionacci sequence starts with 0, 1\n",
+    "    and following numbers are the sum of its\n",
+    "    two preceding numbers:\n",
+    "\n",
+    "    0, 1, 1, 2, 3, 5, 8, 13, ...\n",
+    "    \"\"\"\n",
+    "    result = [0, 1]\n",
+    "    while len(result) < n:\n",
+    "        result.append(result[-1] + result[-2])\n",
+    "    return result[:n]\n",
+    "\n",
+    "\n",
+    "@profile\n",
+    "def sumup_fibionacci_numbers(n):\n",
+    "    sum_ = 0\n",
+    "    for i in range(n):\n",
+    "        numbers = fibionacci_numbers(n)\n",
+    "        sum_ += numbers[i]\n",
+    "    return sum_\n",
+    "\n",
+    "\n",
+    "@profile\n",
+    "def sumup_fibionacci_numbers_optimized(n):\n",
+    "    sum_ = 0\n",
+    "    numbers = fibionacci_numbers(n)\n",
+    "    for i in range(n):\n",
+    "        sum_ += numbers[i]\n",
+    "    return sum_\n",
+    "\n",
+    "\n",
+    "@profile\n",
+    "def sumup_fibionacci_numbers_optimized_further(n):\n",
+    "    numbers = fibionacci_numbers(n)\n",
+    "    return sum(numbers)\n",
+    "\n",
+    "\n",
+    "if __name__ == \"__main__\":\n",
+    "    variant = int(sys.argv[1])\n",
+    "    n = int(sys.argv[2])\n",
+    "\n",
+    "    algo = [\n",
+    "        sumup_fibionacci_numbers,\n",
+    "        sumup_fibionacci_numbers_optimized,\n",
+    "        sumup_fibionacci_numbers_optimized_further,\n",
+    "    ][variant]\n",
+    "    for _ in range(n):\n",
+    "        algo(2_000)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "outputs": [],
+   "source": [
+    "!time python fib_sum.py 0 1\n",
+    "!time python fib_sum.py 1 500\n",
+    "!time python fib_sum.py 2 500"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "outputs": [],
+   "source": [
+    "!kernprof -vl fib_sum.py 0 1\n",
+    "\n",
+    "# check the \"Total time\", you will see the huge overhead compared to the previous timings!"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "outputs": [],
+   "source": [
+    "!kernprof -vl fib_sum.py 1 500"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "outputs": [],
+   "source": [
+    "!kernprof -vl fib_sum.py 2 500"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "outputs": [],
+   "source": [
+    "!pyinstrument fib_sum.py 0 1\n",
+    "# you will not see overhead below anymore:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "outputs": [],
+   "source": [
+    "!pyinstrument fib_sum.py 1 5000"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "outputs": [],
+   "source": [
+    "!pyinstrument fib_sum.py 2 5000"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "    \n",
+    "2. **RNA translation**\n",
+    "    \n",
+    "    The following snippet of code translates a RNA sequence to a sequence of amino acids "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "\"\"\"\n",
+    "translate rna sequence to list of amino acids.\n",
+    "\n",
+    "RNA and amino acid sequences can be written down as a stream\n",
+    "of symbols, RNA is built from 4 symbols `UCGA`, for amino acids\n",
+    "there are more symbols: ACDEFGHIKLMNPQRSTVWY.\n",
+    "\n",
+    "During RNA translation such an RNA sequence is translated into\n",
+    "a sequence of amino acids, where each triplet (which we call \"codon\")\n",
+    "corresponds to one single amino acid:\n",
+    "\n",
+    "e.g.\n",
+    "\n",
+    "    UUU -> F\n",
+    "    CUU -> L\n",
+    "    AUU -> I\n",
+    "\n",
+    "The following strings implement this correspondance from codons\n",
+    "to amino acids: \n",
+    "(note for the experts: we translate stop-codons to \".\")\n",
+    "\"\"\"\n",
+    "\n",
+    "\n",
+    "triplets_txt = \"\"\"UUU CUU AUU GUU UUC CUC AUC GUC UUA CUA AUA GUA\n",
+    "                  UUG CUG AUG GUG UCU CCU ACU GCU UCC CCC ACC GCC\n",
+    "                  UCA CCA ACA GCA UCG CCG ACG GCG UAU CAU AAU GAU\n",
+    "                  UAC CAC AAC GAC UAA CAA AAA GAA UAG CAG AAG GAG\n",
+    "                  UGU CGU AGU GGU UGC CGC AGC GGC UGA CGA AGA GGA\n",
+    "                  UGG CGG AGG GGG\"\"\"\n",
+    "\n",
+    "aas_txt = \"\"\"F L I V F L I V L L I V L L M V S P T A S P T A S P\n",
+    "             T A S P T A Y H N D Y H N D . Q K E . Q K E C R S G\n",
+    "             C R S G . R R G W R R G\"\"\"\n",
+    "\n",
+    "\n",
+    "def translate(rna_sequence):\n",
+    "    \"\"\"\n",
+    "    uses codon table to translate rna sequence.\n",
+    "    example:\n",
+    "\n",
+    "    UUU AUC GUU -> F I V\n",
+    "\n",
+    "    spaces can be omitted.\n",
+    "    \"\"\"\n",
+    "\n",
+    "    # cleanup\n",
+    "    rna_sequence = remove_whitespace(rna_sequence)\n",
+    "\n",
+    "    aas = \"\"\n",
+    "    for start_idx in range(0, len(rna_sequence), 3):\n",
+    "        triplet = rna_sequence[start_idx : start_idx + 3]\n",
+    "        aa = lookup_aa(triplet)\n",
+    "        aas += aa\n",
+    "    return aas\n",
+    "\n",
+    "\n",
+    "def lookup_aa(triplet):\n",
+    "    \"\"\"finds aa symbol for given triplet.\n",
+    "    returns 'X' for invalid triplet\"\"\"\n",
+    "\n",
+    "    # cleanup the multiline strings\n",
+    "    triplets = remove_whitespace(triplets_txt)\n",
+    "    aas = remove_whitespace(aas_txt)\n",
+    "\n",
+    "    if triplet not in triplets:\n",
+    "        return \"X\"\n",
+    "    start_idx = triplets.index(triplet)\n",
+    "    return aas[start_idx // 3]\n",
+    "\n",
+    "\n",
+    "def remove_whitespace(txt):\n",
+    "    # remove spaces and line breaks from string\n",
+    "    return txt.replace(\" \", \"\").replace(\"\\n\", \"\")\n",
+    "\n",
+    "\n",
+    "long_test_sequence = 2000 * remove_whitespace(triplets_txt)\n",
+    "print(\"test sequence has length\", len(long_test_sequence))\n",
+    "res = translate(long_test_sequence)\n",
+    "print(len(res))"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "- Use the `time`, `line_profiler` and `pyinstrument` from the command line to profile the previous code \n",
+    "- Try to make the code faster \n",
+    "   - Check for unnecessary computations.\n",
+    "   -Think about a better data structure for lookup-operations.\n",
+    "\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "outputs": [],
+   "source": [
+    "%%file rna_translation.py\n",
+    "\n",
+    "\"\"\"\n",
+    "translate rna sequence to list of amino acids.\n",
+    "\n",
+    "RNA and amino acid sequences can be written down as a stream\n",
+    "of symbols, RNA is built from 4 symbols `UCGA`, for amino acids\n",
+    "there are more symbols: ACDEFGHIKLMNPQRSTVWY.\n",
+    "\n",
+    "During RNA translation such an RNA sequence is translated into\n",
+    "a sequence of amino acids, where each triplet (which we call \"codon\")\n",
+    "corresponds to one single amino acid:\n",
+    "\n",
+    "e.g.\n",
+    "\n",
+    "    UUU -> F\n",
+    "    CUU -> L\n",
+    "    AUU -> I\n",
+    "\n",
+    "The following strings implement this correspondance from codons\n",
+    "to amino acids: \n",
+    "(note for the experts: we translate stop-codons to \".\")\n",
+    "\"\"\"\n",
+    "\n",
+    "\n",
+    "try:\n",
+    "    profile\n",
+    "except:\n",
+    "    profile = lambda f: f\n",
+    "\n",
+    "\n",
+    "triplets_txt = \"\"\"UUU CUU AUU GUU UUC CUC AUC GUC UUA CUA AUA GUA\n",
+    "                  UUG CUG AUG GUG UCU CCU ACU GCU UCC CCC ACC GCC\n",
+    "                  UCA CCA ACA GCA UCG CCG ACG GCG UAU CAU AAU GAU\n",
+    "                  UAC CAC AAC GAC UAA CAA AAA GAA UAG CAG AAG GAG\n",
+    "                  UGU CGU AGU GGU UGC CGC AGC GGC UGA CGA AGA GGA\n",
+    "                  UGG CGG AGG GGG\"\"\"\n",
+    "\n",
+    "aas_txt = \"\"\"F L I V F L I V L L I V L L M V S P T A S P T A S P\n",
+    "             T A S P T A Y H N D Y H N D . Q K E . Q K E C R S G\n",
+    "             C R S G . R R G W R R G\"\"\"\n",
+    "\n",
+    "\n",
+    "def translate(rna_sequence):\n",
+    "    \"\"\"\n",
+    "    uses codon table to translate rna sequence.\n",
+    "    example:\n",
+    "\n",
+    "    UUU AUC GUU -> F I V\n",
+    "\n",
+    "    spaces can be omitted.\n",
+    "    \"\"\"\n",
+    "\n",
+    "    # cleanup\n",
+    "    rna_sequence = remove_whitespace(rna_sequence)\n",
+    "\n",
+    "    aas = \"\"\n",
+    "    for start_idx in range(0, len(rna_sequence), 3):\n",
+    "        triplet = rna_sequence[start_idx : start_idx + 3]\n",
+    "        aa = lookup_aa(triplet)\n",
+    "        aas += aa\n",
+    "    return aas\n",
+    "\n",
+    "\n",
+    "@profile\n",
+    "def lookup_aa(triplet):\n",
+    "    \"\"\"finds aa symbol for given triplet.\n",
+    "    returns 'X' for invalid triplet\"\"\"\n",
+    "\n",
+    "    # cleanup the multiline strings\n",
+    "    triplets = remove_whitespace(triplets_txt)\n",
+    "    aas = remove_whitespace(aas_txt)\n",
+    "\n",
+    "    if triplet not in triplets:\n",
+    "        return \"X\"\n",
+    "    start_idx = triplets.index(triplet)\n",
+    "    return aas[start_idx // 3]\n",
+    "\n",
+    "\n",
+    "def remove_whitespace(txt):\n",
+    "    # remove spaces and line breaks from string\n",
+    "    return txt.replace(\" \", \"\").replace(\"\\n\", \"\")\n",
+    "\n",
+    "\n",
+    "long_test_sequence = 2000 * remove_whitespace(triplets_txt)\n",
+    "print(\"test sequence has length\", len(long_test_sequence))\n",
+    "res = translate(long_test_sequence)\n",
+    "print(len(res))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "outputs": [],
+   "source": [
+    "!time python rna_translation.py"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "outputs": [],
+   "source": [
+    "!pyinstrument  rna_translation.py"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "source": [
+    "We can see that the majority of the time is spent in `str.replace` within `remove_whitespace`. Let's check it with line-profiler too:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "outputs": [],
+   "source": [
+    "!kernprof -vl rna_translation.py"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "source": [
+    "## First improvement\n",
+    "\n",
+    "We can see that `remove_whitespace` is called 128000 for both arguments times! Since the inputs and outputs will not change for each call of `lookup_aa`, we can try to move this call outside of `lookup_aa`:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "outputs": [],
+   "source": [
+    "%%file rna_translation_2.py\n",
+    "\n",
+    "import sys\n",
+    "\n",
+    "try:\n",
+    "    profile\n",
+    "except:\n",
+    "    profile = lambda f: f\n",
+    "\n",
+    "\n",
+    "triplets_txt = \"\"\"UUU CUU AUU GUU UUC CUC AUC GUC UUA CUA AUA GUA\n",
+    "                  UUG CUG AUG GUG UCU CCU ACU GCU UCC CCC ACC GCC\n",
+    "                  UCA CCA ACA GCA UCG CCG ACG GCG UAU CAU AAU GAU\n",
+    "                  UAC CAC AAC GAC UAA CAA AAA GAA UAG CAG AAG GAG\n",
+    "                  UGU CGU AGU GGU UGC CGC AGC GGC UGA CGA AGA GGA\n",
+    "                  UGG CGG AGG GGG\"\"\"\n",
+    "\n",
+    "aas_txt = \"\"\"F L I V F L I V L L I V L L M V S P T A S P T A S P\n",
+    "             T A S P T A Y H N D Y H N D . Q K E . Q K E C R S G\n",
+    "             C R S G . R R G W R R G\"\"\"\n",
+    "\n",
+    "\n",
+    "def remove_whitespace(txt):\n",
+    "    # remove spaces and line breaks from string\n",
+    "    return txt.replace(\" \", \"\").replace(\"\\n\", \"\")\n",
+    "\n",
+    "\n",
+    "def translate(rna_sequence):\n",
+    "    \"\"\"\n",
+    "    uses codon table to translate rna sequence.\n",
+    "    example:\n",
+    "\n",
+    "    UUU AUC GUU -> F I V\n",
+    "\n",
+    "    spaces can be omitted.\n",
+    "    \"\"\"\n",
+    "\n",
+    "    # cleanup\n",
+    "    rna_sequence = remove_whitespace(rna_sequence)\n",
+    "\n",
+    "    aas = \"\"\n",
+    "    for start_idx in range(0, len(rna_sequence), 3):\n",
+    "        triplet = rna_sequence[start_idx : start_idx + 3]\n",
+    "        aa = lookup_aa(triplet)\n",
+    "        aas += aa\n",
+    "    return aas\n",
+    "\n",
+    "\n",
+    "# cleanup the multiline strings\n",
+    "triplets = remove_whitespace(triplets_txt)\n",
+    "aas = remove_whitespace(aas_txt)\n",
+    "\n",
+    "\n",
+    "@profile\n",
+    "def lookup_aa(triplet):\n",
+    "    \"\"\"finds aa symbol for given triplet.\n",
+    "    returns 'X' for invalid triplet\"\"\"\n",
+    "\n",
+    "    if triplet not in triplets:\n",
+    "        return \"X\"\n",
+    "    start_idx = triplets.index(triplet)\n",
+    "    return aas[start_idx // 3]\n",
+    "\n",
+    "\n",
+    "long_test_sequence = 2000 * remove_whitespace(triplets_txt)\n",
+    "print(\"test sequence has length\", len(long_test_sequence))\n",
+    "res = translate(long_test_sequence)\n",
+    "print(len(res))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "outputs": [],
+   "source": [
+    "!time python rna_translation_2.py"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "source": [
+    "This is around 5-6 times faster!"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "outputs": [],
+   "source": [
+    "!pyinstrument rna_translation_2.py"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "source": [
+    "## Can we do better?\n",
+    "\n",
+    "The appropriate data structure for lookup and associations are dictionaries! Let's try this."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "outputs": [],
+   "source": [
+    "%%file rna_translation_3.py\n",
+    "\n",
+    "import sys\n",
+    "\n",
+    "try:\n",
+    "    profile\n",
+    "except:\n",
+    "    profile = lambda f: f\n",
+    "\n",
+    "\n",
+    "triplets_txt = \"\"\"UUU CUU AUU GUU UUC CUC AUC GUC UUA CUA AUA GUA\n",
+    "                  UUG CUG AUG GUG UCU CCU ACU GCU UCC CCC ACC GCC\n",
+    "                  UCA CCA ACA GCA UCG CCG ACG GCG UAU CAU AAU GAU\n",
+    "                  UAC CAC AAC GAC UAA CAA AAA GAA UAG CAG AAG GAG\n",
+    "                  UGU CGU AGU GGU UGC CGC AGC GGC UGA CGA AGA GGA\n",
+    "                  UGG CGG AGG GGG\"\"\"\n",
+    "\n",
+    "aas_txt = \"\"\"F L I V F L I V L L I V L L M V S P T A S P T A S P\n",
+    "             T A S P T A Y H N D Y H N D . Q K E . Q K E C R S G\n",
+    "             C R S G . R R G W R R G\"\"\"\n",
+    "\n",
+    "\n",
+    "def remove_whitespace(txt):\n",
+    "    # remove spaces and line breaks from string\n",
+    "    return txt.replace(\" \", \"\").replace(\"\\n\", \"\")\n",
+    "\n",
+    "\n",
+    "def translate(rna_sequence):\n",
+    "    \"\"\"\n",
+    "    uses codon table to translate rna sequence.\n",
+    "    example:\n",
+    "\n",
+    "    UUU AUC GUU -> F I V\n",
+    "\n",
+    "    spaces can be omitted.\n",
+    "    \"\"\"\n",
+    "\n",
+    "    # cleanup\n",
+    "    rna_sequence = remove_whitespace(rna_sequence)\n",
+    "\n",
+    "    aas = \"\"\n",
+    "    for start_idx in range(0, len(rna_sequence), 3):\n",
+    "        triplet = rna_sequence[start_idx : start_idx + 3]\n",
+    "        aa = lookup_aa(triplet)\n",
+    "        aas += aa\n",
+    "    return aas\n",
+    "\n",
+    "\n",
+    "# cleanup the multiline strings\n",
+    "triplets = remove_whitespace(triplets_txt)\n",
+    "aas = remove_whitespace(aas_txt)\n",
+    "\n",
+    "mapping = {}\n",
+    "for start_idx in range(0, len(triplets), 3):\n",
+    "    mapping[triplets[start_idx : start_idx + 3]] = aas[start_idx // 3]\n",
+    "\n",
+    "\n",
+    "@profile\n",
+    "def lookup_aa(triplet):\n",
+    "    \"\"\"finds aa symbol for given triplet.\n",
+    "    returns 'X' for invalid triplet\"\"\"\n",
+    "    return mapping.get(triplet, \"X\")\n",
+    "\n",
+    "\n",
+    "long_test_sequence = 2000 * remove_whitespace(triplets_txt)\n",
+    "print(\"test sequence has length\", len(long_test_sequence))\n",
+    "res = translate(long_test_sequence)\n",
+    "print(len(res))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "outputs": [],
+   "source": [
+    "!time python rna_translation_3.py"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "outputs": [],
+   "source": [
+    "!pyinstrument rna_translation_3.py"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "tags": [
+     "solution"
+    ]
+   },
+   "source": [
+    "Observations:\n",
+    "1. We saved another 40% of run time\n",
+    "2. time for `lookup_aa` reduced from ~750ms to ~300ms, which is faster by a factor ~2.5. This speedup will be much more for larger data collections."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Summary Profiling tools\n",
+    "\n",
+    "\n",
+    "|| Command line |Python function | Jupyter magic| \n",
+    "|--- |---|---|---|\n",
+    "| Time measurement |`time` <br><br><br>| `time.time()` <br><br> `timeit.timeit()` | `%time` <br><br> `%timeit` | \n",
+    "| Time profiling|  `kernprof -vl` <br><br>  `pyinstrument`||`%lprun` <br><br>|\n",
+    "| Memory profiling| `python -m memory_profiler ...` <br><br> `scalene`|<br><br> scalene_profiler.start() <br> scalene_profiler.stop()|`%mprun` <br> `%memit` <br><br><br>|\n",
+    "\n",
+    "**Time measurement:**\n",
+    "* The **command line tool** `time` offers a quick time measurement of code execution.\n",
+    "* The **Python function** `time.time()` can be used to capture execution time of a single line or a block of code. To get accurate results, programmers are recommended to run it several times and get the minimum  or the average of measured times.\n",
+    "* The Python function `timeit.timeit()` is suitable for **micro-benchmarking**. It executes the timer for a number of times. Then, it reports the sum runtime of that execution.\n",
+    "* On Jupyter notebook, you have convenient timing tools in the form of IPython **line (with `%`) and cell (with `%%`) magics**:\n",
+    "    * `%time` is similar to the command line `time`.\n",
+    "    * `%timeit`, analogously to `timeit.repeat()`, executes a code snippet repeatedly with a number of runs and, for each run,  a number of times. Then, it reports the averaged runtime."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Time profiling:**\n",
+    "\n",
+    "Profiling of the whole script helps to specify bottlenecks in the code. The profilers comes with an overhead and is not suitable for benchmarking (as `%timeit` does).\n",
+    "* `%lprun` reports easier-to-read **line-by-line time measurements** of the code. The package needs to be installed and loaded as an extension.\n",
+    "* `kernprof -vl` is a command line for line profiling.\n",
+    "* `pyinstrument` is a command line which **measures and reports time per function**."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "**Memory profiling:**\n",
+    "\n",
+    "We can also see the memory consumption of the code by using the memory profiler. It comes with an overhead, even higher than that of the line profiler. The package needs to be installed and loaded as an extension.\n",
+    "* `%mprun` reports **line-by-line memory** used of the function which needs to be written to an external file.\n",
+    "* `%memit` is a **single-line profiler** reporting memory use, including temporary memory use, of a line of code."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# References\n",
+    "\n",
+    "* https://docs.python.org/\n",
+    "* https://jakevdp.github.io/PythonDataScienceHandbook/01.07-timing-and-profiling.html\n",
+    "* https://ipython.readthedocs.io/en/stable/interactive/magics.html\n",
+    "* https://siscourses.ethz.ch/from_scription_to_professional_software_development/"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3 (ipykernel)",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+<<<<<<< HEAD
+   "version": "3.9.12"
+=======
+   "version": "3.9.13"
+>>>>>>> section_2
+  },
+  "toc-autonumbering": true,
+  "toc-showcode": false,
+  "toc-showmarkdowntxt": false
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}
