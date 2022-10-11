@@ -1,0 +1,14 @@
+[package]
+name = "pi"
+version = "0.1.0"
+authors = ["Gerhard Bräunlich <g.braeunlich@disroot.org>"]
+edition = "2018"
+
+
+[lib]
+name = "pi"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = {version = "0.12", features = ["extension-module"]}
+rand = "0.7"
