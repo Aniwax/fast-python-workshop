@@ -1,0 +1,138 @@
+{
+  "10": {
+    "np.einsum": 15.7,
+    "np.matmul": 7.2,
+    "np.ops": 9.1,
+    "cp.einsum": 1116.2,
+    "cp.matmul": 315.7,
+    "cp.ops": 106.3
+  },
+  "50": {
+    "np.einsum": 16.3,
+    "np.matmul": 11,
+    "np.ops": 12.8,
+    "cp.einsum": 871.5,
+    "cp.matmul": 323.4,
+    "cp.ops": 84.7
+  },
+  "100": {
+    "np.einsum": 16.2,
+    "np.matmul": 17.5,
+    "np.ops": 21,
+    "cp.einsum": 827.2,
+    "cp.matmul": 307.8,
+    "cp.ops": 83.9
+  },
+  "150": {
+    "np.einsum": 17,
+    "np.matmul": 26.9,
+    "np.ops": 35.4,
+    "cp.einsum": 862.3,
+    "cp.matmul": 320.9,
+    "cp.ops": 83.2
+  },
+  "200": {
+    "np.einsum": 17,
+    "np.matmul": 38.9,
+    "np.ops": 56.8,
+    "cp.einsum": 857.3,
+    "cp.matmul": 320,
+    "cp.ops": 83.4
+  },
+  "250": {
+    "np.einsum": 17.6,
+    "np.matmul": 55.9,
+    "np.ops": 83.7,
+    "cp.einsum": 868.9,
+    "cp.matmul": 323,
+    "cp.ops": 84.7
+  },
+  "300": {
+    "np.einsum": 17.4,
+    "np.matmul": 76.1,
+    "np.ops": 116,
+    "cp.einsum": 811.7,
+    "cp.matmul": 300.4,
+    "cp.ops": 85.1
+  },
+  "350": {
+    "np.einsum": 18.2,
+    "np.matmul": 98.2,
+    "np.ops": 157,
+    "cp.einsum": 867.8,
+    "cp.matmul": 322.3,
+    "cp.ops": 84.9
+  },
+  "400": {
+    "np.einsum": 19,
+    "np.matmul": 144.9,
+    "np.ops": 222.6,
+    "cp.einsum": 869.1,
+    "cp.matmul": 325.3,
+    "cp.ops": 83.9
+  },
+  "450": {
+    "np.einsum": 20,
+    "np.matmul": 159.2,
+    "np.ops": 265.8,
+    "cp.einsum": 918.2,
+    "cp.matmul": 341.3,
+    "cp.ops": 86.6
+  },
+  "500": {
+    "np.einsum": 23.4,
+    "np.matmul": 195.1,
+    "np.ops": 330.4,
+    "cp.einsum": 885.1,
+    "cp.matmul": 332.3,
+    "cp.ops": 88
+  },
+  "550": {
+    "np.einsum": 24.8,
+    "np.matmul": 244.8,
+    "np.ops": 445.6,
+    "cp.einsum": 858.1,
+    "cp.matmul": 312.6,
+    "cp.ops": 96
+  },
+  "600": {
+    "np.einsum": 32.8,
+    "np.matmul": 293.6,
+    "np.ops": 570.3,
+    "cp.einsum": 977.7,
+    "cp.matmul": 339.3,
+    "cp.ops": 101.3
+  },
+  "650": {
+    "np.einsum": 37,
+    "np.matmul": 352.4,
+    "np.ops": 715.9,
+    "cp.einsum": 1011.6,
+    "cp.matmul": 353,
+    "cp.ops": 106.8
+  },
+  "700": {
+    "np.einsum": 42.5,
+    "np.matmul": 410.2,
+    "np.ops": 855.1,
+    "cp.einsum": 999,
+    "cp.matmul": 332.9,
+    "cp.ops": 111.1
+  },
+  "750": {
+    "np.einsum": 36.9,
+    "np.matmul": 462.8,
+    "np.ops": 1055.5,
+    "cp.einsum": 976.1,
+    "cp.matmul": 329.9,
+    "cp.ops": 118.7
+  },
+  "800": {
+    "np.einsum": 40.4,
+    "np.matmul": 577.8,
+    "np.ops": 1260.8,
+    "cp.einsum": 1067.8,
+    "cp.matmul": 357.3,
+    "cp.ops": 120.7
+  }
+}

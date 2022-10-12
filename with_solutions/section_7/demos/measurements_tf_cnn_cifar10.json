@@ -1,0 +1,7 @@
+{
+  "Training speed" : {
+    "NVIDIA GPU RTX2080Ti": 10931,
+    "AMD CPU EPYC7742 32 Threads": 4865,
+    "AMD CPU EPYC7742 1 Thread": 889
+  }
+}
